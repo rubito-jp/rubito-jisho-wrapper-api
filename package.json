@@ -1,0 +1,48 @@
+{
+  "name": "rubito-jisho-wrapper-api",
+  "version": "1.2.0",
+  "description": "Encapsulates the official Jisho.org API and also provides kanji, example, and stroke diagram search.ESM support. Cloudflare worker OK!",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "exports": {
+    "import": "./index.js",
+    "require": "./index.cjs"
+  },
+  "scripts": {
+    "buildcjs": "rollup index.js --file index.cjs --format cjs",
+    "prepublishOnly": "npm run buildcjs",
+    "create_test_cases": "node ./test/create_test_cases.js",
+    "test": "./node_modules/.bin/mocha ./test/run_tests.js --exit",
+    "coverage": "c8 --reporter=lcov --reporter=text npm run test",
+    "document": "./node_modules/.bin/jsdoc --configure .jsdoc.json ./index.js -d ./docs -R README.md"
+  },
+  "keywords": [
+    "jisho",
+    "kanji",
+    "japanese",
+    "word",
+    "search",
+    "stroke",
+    "order",
+    "diagrams"
+  ],
+  "author": "rubito-jp",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
+    "escape-string-regexp": "^1.0.5",
+    "html-entities": "^1.2.1",
+    "linkedom": "^0.18.12"
+  },
+  "devDependencies": {
+    "c8": "^9.1.0",
+    "chai": "^4.2.0",
+    "codecov": "^3.5.0",
+    "docdash": "^2.0.1",
+    "jsdoc": "^4.0.0",
+    "mocha": "^10.2.0",
+    "rollup": "^4.52.3"
+  }
+}

@@ -1,0 +1,11 @@
+.vscode
+docs
+logo.png
+.eslintignore
+.eslintrc.js
+.jsdoc.json
+test
+.gitignore
+.nyc_output
+.travis.yml
+.github/workflows/ci.yml
