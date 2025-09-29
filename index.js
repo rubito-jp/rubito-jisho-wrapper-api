@@ -12,7 +12,7 @@ import escapeStringRegexp from 'escape-string-regexp';
 import { XmlEntities } from 'html-entities';
 
 const axios = axiosBuilder.create({
-  timeout: 10000,
+  timeout: 20000,
   headers: {
     'User-Agent': 'unofficial-jisho-api (https://www.npmjs.com/package/unofficial-jisho-api)'
   },
