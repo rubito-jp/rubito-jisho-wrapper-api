@@ -15,9 +15,10 @@ const DEFAULT_HEADERS = {
   'User-Agent': 'unofficial-jisho-api (https://www.npmjs.com/package/unofficial-jisho-api)'
 };
 
+ 
+const JISHO_API = 'http://jisho.org/api/v1/search/words';
+const SCRAPE_BASE_URI = 'http://jisho.org/search/';
 
-const JISHO_API = 'https://jisho.org/api/v1/search/words';
-const SCRAPE_BASE_URI = 'https://jisho.org/search/';
 
 // This link does not use https because as of June 5, 2021 SSL is broken on classic.jisho.org
 // (and even if it's been fixed since then, it will be safer to keep this as-is)
