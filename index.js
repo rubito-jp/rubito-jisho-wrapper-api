@@ -1,22 +1,20 @@
 /*
+npm publish --access public
  * This module encapsulates the official Jisho.org API
  * and also provides kanji and example search features that scrape Jisho.org.
  * Permission to scrape granted by Jisho's admin Kimtaro:
  *     https://jisho.org/forum/54fefc1f6e73340b1f160000-is-there-any-kind-of-search-api
  */
-
-import axiosBuilder from 'axios'; 
+ 
 import { parseHTML } from 'linkedom';
 
 import escapeStringRegexp from 'escape-string-regexp';
 import { XmlEntities } from 'html-entities';
 
-const axios = axiosBuilder.create({
-  timeout: 20000,
-  headers: {
-    'User-Agent': 'unofficial-jisho-api (https://www.npmjs.com/package/unofficial-jisho-api)'
-  },
-});
+const DEFAULT_HEADERS = {
+  'User-Agent': 'unofficial-jisho-api (https://www.npmjs.com/package/unofficial-jisho-api)'
+};
+
 
 const JISHO_API = 'https://jisho.org/api/v1/search/words';
 const SCRAPE_BASE_URI = 'https://jisho.org/search/';
@@ -584,62 +582,61 @@ function parsePhrasePageData(pageHtml, query) {
  * @property {string} uri The URI that these results were scraped from.
  * @property {Array.<ExampleResultData>} results The examples that were found, if any.
  */
-
+ 
 /**
  * A wrapper around the Jisho search functions.
  */
 class API {
   /**
-   * Query the official Jisho API for a word or phrase. See
-   * [here]{@link https://jisho.org/forum/54fefc1f6e73340b1f160000-is-there-any-kind-of-search-api}
-   * for discussion about the official API.
+   * Query the official Jisho API for a word or phrase.
    * @param {string} phrase The search term to search for.
-   * @returns {Object} The response data from the official Jisho.org API. Its format is somewhat
-   *   complex and is not documented, so put on your trial-and-error hat.
+   * @param {number} page Optional page number.
+   * @returns {Object} The JSON response from the official Jisho.org API.
    * @async
    */
-  searchForPhrase(phrase, page) {
+  async searchForPhrase(phrase, page) {
     const uri = uriForPhraseSearch(phrase, page);
-    return axios.get(uri).then(response => response.data);
+    const res = await fetch(uri, { headers: DEFAULT_HEADERS });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ${uri} (${res.status})`);
+    }
+    return await res.json();
   }
 
   /**
-   * Scrape the word page for a word/phrase. This allows you to
-   * get some information that isn't provided by the official API, such as
-   * part-of-speech and JLPT level. However, the official API should be preferred
-   * if it has the information you need. This function scrapes https://jisho.org/word/XXX.
-   * In general, you'll want to include kanji in your search term, for example 掛かる
-   * instead of かかる (no results).
-   * @param {string} phrase The search term to search for.
-   * @returns {PhrasePageScrapeResult} Information about the searched query.
+   * Scrape the word page for a word/phrase.
+   * This scrapes https://jisho.org/word/XXX for extra info like POS and JLPT level.
+   * @param {string} phrase The search term.
+   * @returns {PhrasePageScrapeResult} Info about the searched query.
    * @async
    */
   async scrapeForPhrase(phrase) {
     const uri = uriForPhraseScrape(phrase);
-    try {
-      const response = await axios.get(uri);
-      return parsePhrasePageData(response.data, phrase);
-    } catch (err) {
-      if (err.response && err.response.status === 404) {
-        return {
-          query: phrase,
-          found: false,
-        };
-      }
-
-      throw err;
+    const res = await fetch(uri, { headers: DEFAULT_HEADERS });
+    if (res.status === 404) {
+      return { query: phrase, found: false };
     }
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ${uri} (${res.status})`);
+    }
+    const html = await res.text();
+    return parsePhrasePageData(html, phrase);
   }
 
   /**
    * Scrape Jisho.org for information about a kanji character.
    * @param {string} kanji The kanji to search for.
-   * @returns {KanjiResult} Information about the searched kanji.
+   * @returns {KanjiResult} Info about the searched kanji.
    * @async
    */
-  searchForKanji(kanji) {
+  async searchForKanji(kanji) {
     const uri = uriForKanjiSearch(kanji);
-    return axios.get(uri).then(response => parseKanjiPageData(response.data, kanji));
+    const res = await fetch(uri, { headers: DEFAULT_HEADERS });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ${uri} (${res.status})`);
+    }
+    const html = await res.text();
+    return parseKanjiPageData(html, kanji);
   }
 
   /**
@@ -648,12 +645,18 @@ class API {
    * @returns {ExampleResults}
    * @async
    */
-  searchForExamples(phrase) {
+  async searchForExamples(phrase) {
     const uri = uriForExampleSearch(phrase);
-    return axios.get(uri).then(response => parseExamplePageData(response.data, phrase));
+    const res = await fetch(uri, { headers: DEFAULT_HEADERS });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ${uri} (${res.status})`);
+    }
+    const html = await res.text();
+    return parseExamplePageData(html, phrase);
   }
 }
 
+// re-expose helpers
 API.prototype.getUriForKanjiSearch = uriForKanjiSearch;
 API.prototype.getUriForExampleSearch = uriForExampleSearch;
 API.prototype.getUriForPhraseSearch = uriForPhraseSearch;
