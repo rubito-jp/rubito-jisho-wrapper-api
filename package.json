@@ -1,6 +1,6 @@
 {
   "name": "rubito-jisho-wrapper-api",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Encapsulates the official Jisho.org API and also provides kanji, example, and stroke diagram search.ESM support. Cloudflare worker OK!",
   "main": "index.js",
   "types": "index.d.ts",

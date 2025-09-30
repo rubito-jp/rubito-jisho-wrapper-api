@@ -1,4 +1,4 @@
- 
+ npm publish --access public
 ## Basic usage
  
 ### Word/phrase search (provided by official Jisho API)
